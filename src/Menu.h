@@ -29,16 +29,28 @@ public:
 	}
 
 	bool carouselUp(int index) {
-		if (index >= 0 && index <= _carousels.size()) {
+		if (index >= 0 && index < _carousels.size()) {
 			_carousels[0].prevPage();
 			return true;
 		}
 		return false;
 	}
 	bool carouselDown(int index) {
-		if (index >= 0 && index <= _carousels.size()) {
+		if (index >= 0 && index < _carousels.size()) {
 			_carousels[0].nextPage();
 			return true;
+		}
+		return false;
+	}
+	bool isCarouselAtTop(int index = 0) {
+		if (index >= 0 && index < _carousels.size()) {
+			return _carousels[index].isAtTop();
+		}
+		return false;
+	}
+	bool isCarouselAtBottom(int index = 0) {
+		if (index >= 0 && index < _carousels.size()) {
+			return _carousels[index].isAtBottom();
 		}
 		return false;
 	}

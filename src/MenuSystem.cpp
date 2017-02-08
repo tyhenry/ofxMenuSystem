@@ -1,8 +1,8 @@
 #include "MenuSystem.h"
 
-int MenuSystem::addMenu(Menu menu) {
+bool MenuSystem::addMenu(Menu menu) {
 	_menus.push_back(menu);
-	return _menus.size();
+	return true;
 }
 
 vector<Button*> MenuSystem::hover(vector<ofVec2f> positions) {

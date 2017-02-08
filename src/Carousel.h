@@ -77,6 +77,15 @@ public:
 		scrollTo(newIdx);
 	}
 
+	bool isAtTop() {
+		if (_topIdx == 0) return true;
+		return false;
+	}
+	bool isAtBottom() {
+		if (_topIdx >= _items.size() - _nItemsDisp) return true;
+		return false;
+	}
+
 	void setPosition(const ofVec2f& pos) {
 		ofVec2f offset = pos - _dispBounds.position;
 		_dispBounds.setPosition(pos);

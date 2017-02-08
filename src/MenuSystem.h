@@ -8,7 +8,7 @@ class MenuSystem {
 public:
 	MenuSystem():
 		_cMenu(0) {};
-	int addMenu(Menu menu); // returns num menus in system
+	bool addMenu(Menu menu);
 	void clearMenus() {
 		_menus.clear();
 		_cMenu = 0;
@@ -51,6 +51,7 @@ public:
 		return getMenuPtr(_cMenu);
 	}
 	vector<Menu>& getMenus() { return _menus; }
+	int getNumMenus() { return _menus.size(); }
 
 	bool goToMenu(int menuIdx);
 	bool goToMenu(string name);
