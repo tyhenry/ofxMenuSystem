@@ -4,137 +4,81 @@
 
 class Carousel {
 public:
-	Carousel(string name =""): _name(name) {}
-	bool setup(vector<ofImage>& items, vector<string> names,
-		float x, float y, float w, float itemH,
-		int nItemsDisplay = 3, float itemGap = 10, ofImage hoverImg = ofImage())
-	{
-		if (items.size() != names.size() || items.size() == 0 || nItemsDisplay <= 0)
-			return false;
 
-		//dims
-		_iW = w; _iH = itemH;
-		_nItemsDisp = nItemsDisplay;
-		_gap = itemGap;
-		float h = _nItemsDisp * _iH + (_nItemsDisp - 1) * _gap;
-		_dispBounds.set(x, y, w, h);
+	Carousel(string name ="")
+	: _name(name) 
+	{}
 
-		// items
-		_items.clear();
-		float iX = x, iY = y;
-		for (int i = 0; i < items.size(); i++) {
-			_items.push_back(Button(items[i], names[i], ofVec2f(iX, iY), _iW, _iH));
-			if (hoverImg.isAllocated()) _items.back().setHoverImg(hoverImg);
-			iY += _iH + _gap;
-		}
+	// setup
 
-		// fbo
-		_fbo.allocate(w, h, GL_RGBA);
-		_fbo.begin(); ofClear(0); _fbo.end();
-		return true;
+	bool setup
+	(
+		vector<ofImage>& items,			// button images
+		vector<string> names,			// button names
+		float x,						// carousel x pos
+		float y,						// carousel y pos
+		float itemW,					// button width
+		float itemH,					// button height
+		int nItemsDisplay = 3,			// num buttons to display at once
+		float itemGap = 10,				// gap between buttons
+		ofImage hoverImg = ofImage()	// button master hover image
+	);
 
+	// loop
+
+	void update() {						// update only needed for animation
+		if (_animYShift != 0) 
+			doAnimation();
 	}
+	void draw();						// draw
 
-	Button* hover(ofVec2f pos) {
-		Button* hit = nullptr;
-		if (_dispBounds.inside(pos)) {
-			for (auto& item : _items) {
-				if (item.hover(pos)) hit = &item;
-				else item.noHover();
-			}
-		}
-		else noHover();
-		return hit;
+	// set/get name
+
+	void setName(string name) { _name = name;  }
+	string getName() { return _name; }
+
+	// change position
+
+	void setPosition(const ofVec2f& pos);
+	void translate(const ofVec2f& amt);
+	ofRectangle getBounds() { return _dispBounds; }
+
+	// hover logic
+
+	Button* hover(ofVec2f pos);						// return hovered button (if any)
+	bool inside(ofVec2f pos) {						// test if pos is inside carousel
+		return _dispBounds.inside(pos); 
 	}
-
-	bool inside(ofVec2f pos) {
-		return _dispBounds.inside(pos);
-	}
-
-	void noHover() {
+	void noHover() {								// reset hover states for all buttons
 		for (auto& item : _items) 
-			item.noHover();
+		item.noHover(); 
+	}
+	void setHoverWait(float hoverWait) {			// set time to wait before hover -> select
+		for (auto& item : _items) 
+		item.setHoverWait(hoverWait); 
 	}
 
-	void nextPage() {
-		if (_bScrollBackAfterEnd && _topIdx >= _items.size() - _nItemsDisp) {
-			scrollTo(0);
-			return;
-		}
-		int newIdx = _topIdx + _nItemsDisp;
-		if (newIdx >= _items.size()) {
-			newIdx = _items.size() - _nItemsDisp;
-		}
-		scrollTo(newIdx);
+	// paging
+
+	void nextPage();
+	void prevPage();
+	bool isAtTop() {								// is carousel at start
+		return (_topIdx == 0); 
 	}
-	void prevPage() {
-		if (_bScrollEndAfterBack && _topIdx == 0 && _items.size() > _nItemsDisp) {
-			scrollTo(_items.size() - _nItemsDisp);
-			return;
-		}
-		int newIdx = _topIdx - _nItemsDisp;
-		if (newIdx < 0) newIdx = 0;
-		scrollTo(newIdx);
+	bool isAtBottom() {								// is carousel at end
+		return (
+		_topIdx >= _items.size() - _nItemsDisp);	
 	}
 
-	bool isAtTop() {
-		if (_topIdx == 0) return true;
-		return false;
-	}
-	bool isAtBottom() {
-		if (_topIdx >= _items.size() - _nItemsDisp) return true;
-		return false;
-	}
+	// animation
 
-	void setPosition(const ofVec2f& pos) {
-		ofVec2f offset = pos - _dispBounds.position;
-		_dispBounds.setPosition(pos);
-		for (auto& item : _items) {
-			item.setPos(item.getPos() + offset);
-		}
-	}
-
-	void translate(const ofVec2f& amt) {
-		_dispBounds.setPosition(_dispBounds.position + amt);
-		for (auto& item : _items) {
-			item.setPos(item.getPos() + amt);
-		}
-	}
-
-	void setHoverWait(float hoverWait) {
-		for (auto& item : _items) {
-			item.setHoverWait(hoverWait);
-		}
-	}
-
-	string getName() {
-		return _name;
-	}
-	void setName(string name) {
-		_name = name;
-	}
-
-	void draw() {
-		_fbo.begin();
-		ofClear(0);
-		ofPushMatrix();
-		ofTranslate(-_dispBounds.x, -_dispBounds.y); // draw items at 0,0 in fbo
-		for (auto& item : _items) {
-			item.draw();
-		}
-		ofPopMatrix();
-		_fbo.end();
-		_fbo.draw(_dispBounds);
-	}
 	void endAnimation() {
 		if (_animYShift == 0) return;
 		scrollToNow(_animTargetIdx); // clamp to target
 		// clear animation
 		_animYShift = 0; _animStart = 0; _animEnd = 0;
 	}
-	void update() {
-		if (_animYShift != 0) doAnimation();
-	}
+
 	void setAnimate(bool on) {
 		_bAnimate = on;
 	}
@@ -153,7 +97,29 @@ public:
 	}
 
 protected:
-	string _name;
+	string _name;						// carousel name
+
+	// items
+	vector<Button> _items;				// all items/buttons in carousel
+	float _iW, _iH, _gap;				// item width, item height, gap between items
+	ofRectangle _dispBounds;			// display area
+	int _topIdx	= 0;	// current button index at top of display area
+	int _nItemsDisp;					// num items to display at once
+	ofFbo _fbo;							// fbo for pre-draw overflow
+
+	// scroll
+	bool _bScrollBackAfterEnd = true;	// whether the carousel should scroll back up after last page
+	bool _bScrollEndAfterBack = true;	// whether the caroulse should scroll to last page if prevPage() on first
+
+	// scroll animation
+	bool _bAnimate = true;
+	float _animYShift = 0;				// total distance of current animation
+	float _animStart = 0;				// time in seconds animation started
+	float _animEnd = 0;					// time in seconds animation will end
+	int _animTargetIdx = 0;				// index of item animation will end on
+	float _animSpeed = 0.3;				// time it takes to move one index (_iH+_gap pixels)
+	float _maxAnimTime = 0.7;			// maximum animation time
+
 	bool scrollTo(int topIdx) {
 		if (_bAnimate) return scrollToAnimate(topIdx);
 		else return scrollToNow(topIdx);
@@ -225,24 +191,6 @@ protected:
 	float standardEase(const float p) {
 		return cubicBezier(p, 0.4, 0, 0.2, 1); // material design standard motion curve
 	}
-
-
-	float _iW, _iH, _gap;
-	int _topIdx = 0;
-	ofRectangle _dispBounds;
-	ofFbo _fbo;
-	int _nItemsDisp;
-	vector<Button> _items;
-
-	bool _bScrollBackAfterEnd = true; // whether the carousel should scroll back up after last page
-	bool _bScrollEndAfterBack = true; // whether the caroulse should scroll to last page if prevPage() on first
-	bool _bAnimate = true;
-	float _animYShift = 0; // total distance of current animation
-	float _animStart = 0; // time animation started
-	float _animEnd = 0; // time animation will end
-	int _animTargetIdx = 0; // index of item animation will end on
-	float _animSpeed = 0.3; // time it takes to move one index (_iH+_gap pixels)
-	float _maxAnimTime = 0.7; // maximum animation time
 
 
 	// cubic bezier function for material design standard curve:
