@@ -31,6 +31,10 @@ public:
 	void resetHover(int menuIdx);
 	void resetHover() { resetHover(_cMenu); } // reset current menu
 
+	void resetCarousels();
+	bool carouselsPageUp();
+	bool carouselsPageDown();
+
 	int getMenuIndex() { return _cMenu; }
 	int getMenuIndexByName(string name) {
 		for (int i = 0; i < _menus.size(); i++) {
@@ -49,6 +53,9 @@ public:
 	}
 	Menu* getMenuPtr() {
 		return getMenuPtr(_cMenu);
+	}
+	Menu* getMenuPtrByName(string name) { 
+		return getMenuPtr(getMenuIndexByName(name)); 
 	}
 	vector<Menu>& getMenus() { return _menus; }
 	int getNumMenus() { return _menus.size(); }

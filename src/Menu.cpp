@@ -27,6 +27,14 @@ bool Menu::addCarousel(string name, vector<ofImage>& items, vector<string> names
 	return good;
 }
 
+void Menu::resetCarousels()
+{
+	for (auto& carousel : _carousels) {
+		carousel.goToTop();
+		carousel.resetHover();
+	}
+}
+
 void Menu::setHoverWait(float seconds) {
 	_hoverWait = seconds;
 	for (auto& button : _buttons) {
@@ -113,6 +121,8 @@ void Menu::update() {
 }
 
 void Menu::draw() {
+	ofLogVerbose("Menu") << "drawing bg: " << _bDrawBg 
+		<< ", # btns:" << _buttons.size() << ", # crsls: " << _carousels.size();
 	if (_bDrawBg) {
 		_bg.draw(_bgBounds);
 	}

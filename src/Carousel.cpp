@@ -55,6 +55,7 @@ void Carousel::nextPage() {
 	}
 	scrollTo(newIdx);
 }
+
 void Carousel::prevPage() {
 	if (_bScrollEndAfterBack && _topIdx == 0 && _items.size() > _nItemsDisp) {
 		scrollTo(_items.size() - _nItemsDisp);
@@ -63,6 +64,15 @@ void Carousel::prevPage() {
 	int newIdx = _topIdx - _nItemsDisp;
 	if (newIdx < 0) newIdx = 0;
 	scrollTo(newIdx);
+}
+
+void Carousel::goToTop()
+{
+	bool animated = getAnimate();
+	setAnimate(false);
+	while (!isAtTop())
+		prevPage();
+	setAnimate(animated);
 }
 
 void Carousel::setPosition(const ofVec2f& pos) {

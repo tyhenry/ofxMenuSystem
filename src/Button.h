@@ -16,7 +16,7 @@ public:
 	}
 
 	bool hover(ofVec2f pos) {
-		if (hitTest(pos)) {
+		if (!hidden && hitTest(pos)) {
 			hover();
 			return true;
 		}
@@ -95,7 +95,16 @@ public:
 
 	void update() {}
 
+	void hide(bool y = true) {
+		hidden = y;
+	}
+	void unhide() { hidden = false; }
+	bool isHidden() {
+		return hidden;
+	}
+
 	void draw(bool drawHover = true) {
+		if (hidden) return;
 		_img.draw(_bounds);
 		if (drawHover && _hoverStart != 0) { // highlight if hover
 			ofPushStyle();
@@ -113,4 +122,6 @@ protected:
 
 	float _hoverStart = 0;
 	float _hoverWait = 1.0;
+
+	bool hidden = false;
 };

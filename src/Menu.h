@@ -12,6 +12,7 @@ public:
 	void addButton(ofImage img, string name, float x, float y, float w, float h, ofImage hoverImg=ofImage());
 
 	bool addCarousel(string name, vector<ofImage>& items, vector<string> names, float x, float y, float w, float itemH, int nItemsDisplay=3, float itemGap=10, ofImage hoverImg=ofImage());
+	void resetCarousels(); // goes to top, resets hover states of buttons
 
 	void setPos(ofVec2f pos);
 	void setPos(float x, float y) { setPos(ofVec2f(x, y)); }
@@ -59,6 +60,12 @@ public:
 	}
 	vector<Button>& getButtons() {
 		return _buttons;
+	}
+	Button* getButtonByName(string name) {
+		for (auto& btn : _buttons) {
+			if (btn.getName() == name) return &btn;
+		}
+		return nullptr;
 	}
 
 	vector<Button*> hover(vector<ofVec2f> positions);

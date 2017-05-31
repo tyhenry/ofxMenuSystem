@@ -41,6 +41,7 @@ void MenuSystem::update() {
 }
 
 void MenuSystem::draw() {
+	ofLogVerbose("MenuSystem") << "drawing menu [" << _cMenu << "]";
 	if (exists(_cMenu)) {
 		_menus[_cMenu].draw();
 	}
@@ -85,6 +86,38 @@ void MenuSystem::resetHovers() {
 }
 void MenuSystem::resetHover(int menuIdx) {
 	if (exists(menuIdx)) _menus[menuIdx].resetHover();
+}
+
+void MenuSystem::resetCarousels()
+{
+	for (auto& menu : _menus)
+		menu.resetCarousels();
+}
+
+bool MenuSystem::carouselsPageUp()
+{
+	bool did = false;
+	if (exists(_cMenu)){
+		auto& csls = _menus[_cMenu].getCarousels();
+		for (auto& csl : csls) {
+			did = true;
+			csl.prevPage();
+		}
+	}
+	return did;
+}
+
+bool MenuSystem::carouselsPageDown()
+{
+	bool did = false;
+	if (exists(_cMenu)){
+		auto& csls = _menus[_cMenu].getCarousels();
+		for (auto& csl : csls) {
+			did = true;
+			csl.nextPage();
+		}
+	}
+	return did;
 }
 
 bool MenuSystem::goToMenu(int menuIdx) {

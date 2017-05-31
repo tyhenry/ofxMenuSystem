@@ -53,6 +53,7 @@ public:
 		for (auto& item : _items) 
 		item.noHover(); 
 	}
+	void resetHover() { noHover(); }
 	void setHoverWait(float hoverWait) {			// set time to wait before hover -> select
 		for (auto& item : _items) 
 		item.setHoverWait(hoverWait); 
@@ -62,6 +63,7 @@ public:
 
 	void nextPage();
 	void prevPage();
+	void goToTop();
 	bool isAtTop() {								// is carousel at start
 		return (_topIdx == 0); 
 	}
